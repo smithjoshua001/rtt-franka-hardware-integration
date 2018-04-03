@@ -116,7 +116,7 @@ bool KinematicChain::sense() {
     if (gravity_feedback->connected())
         gravity_feedback->dynamicFeedback = Eigen::Map<Eigen::VectorXd>(franka_model->gravity(franka_state, franka_state.m_load, franka_state.F_x_Cload).data(), dof).cast<float>();
 
-//if (jacobian_feedback->connected())
+    if (jacobian_feedback->connected())
         jacobian_feedback->dynamicFeedback = Eigen::Map<Eigen::MatrixXd>(franka_model->zeroJacobian(franka::Frame::kFlange,franka_state).data(), 6, dof).cast<float>();
 
     //RTT::log(RTT::Info) << "WRITE!!"<< franka_state.control_command_success_rate << ", "<<std::to_string(franka_state.control_command_success_rate>0.8) << RTT::endlog();
@@ -128,7 +128,7 @@ bool KinematicChain::sense() {
         coriolis_feedback->write();
     if (gravity_feedback->connected())
         gravity_feedback->write();
-    //if (jacobian_feedback->connected())
+    if (jacobian_feedback->connected())
         jacobian_feedback->write();
 }
 
@@ -169,11 +169,14 @@ void KinematicChain::move() try {
     }
     // }
     franka_control->throwOnMotionError(franka_state, motion_id);
+} catch (const franka::NetworkException &exc) {
+    RTT::log(RTT::Error)<<"NETWORK: "<<exc.what()<<RTT::endlog();
+    throw;
 } catch (const std::exception &exc) {
     RTT::log(RTT::Error)<<exc.what()<<RTT::endlog();
-    try {
-        franka_control->cancelMotion(motion_id);
-    } catch (...) {}
+    //try {
+    //    franka_control->cancelMotion(motion_id);
+    //} catch (...) {}
     throw;
 }
 

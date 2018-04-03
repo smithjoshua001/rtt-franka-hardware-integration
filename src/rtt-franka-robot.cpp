@@ -162,8 +162,7 @@ bool franka_robot::configureHook() {
     RTT::log(RTT::Info) << "Model name " << model->getName() << RTT::endlog();
     RTT::log(RTT::Info) << "Model has " << urdf_joints_.size() << " joints"
                         << RTT::endlog();
-    RTT::log(RTT::Info) << kinematic_chains["Franka"]->getKinematicChainName() << "Model has " << urdf_links_.size() << " links"
-                        << RTT::endlog();
+    //RTT::log(RTT::Info) << kinematic_chains["Franka"]->getKinematicChainName() << "Model has " << urdf_links_.size() << " links"<< RTT::endlog();
 
     for (const std::string &chain_name : chain_names) {
         if (!(kinematic_chains[chain_name]->initKinematicChain())) {
