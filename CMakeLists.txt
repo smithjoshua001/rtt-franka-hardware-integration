@@ -86,6 +86,9 @@ get_target_property(Franka_INCLUDE_DIRS ${Franka_LIBRARIES} INTERFACE_INCLUDE_DI
 include_directories(${Franka_INCLUDE_DIRS})
 message(STATUS "FRANKA: ${Franka_INCLUDE_DIRS}")
 
+find_library(Poco REQUIRED COMPONENTS Net Foundation)
+message(STATUS "POCO: ${Poco_LIBRARIES}")
+
 link_directories(
   ${orocos_kdl_LIBRARY_DIRS}
   ${PROJECT_NAME_BIN}/lib
@@ -132,6 +135,8 @@ target_link_libraries(rtt_franka_hw
   ${srdfdom_advr_LIBRARY}
   ${XBotCoreModel_LIBRARY}
   ${Franka_LIBRARIES}
+  Poco::Foundation
+  Poco::Net
 )
 
 orocos_generate_package(INCLUDE_DIRS include)
