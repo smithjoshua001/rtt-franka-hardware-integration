@@ -108,13 +108,13 @@ bool KinematicChain::sense() {
     jf->joint_feedback.torques = Eigen::Map<Eigen::VectorXd>(franka_state.tau_J.data(), dof).cast<float>();
     // RTT::log(RTT::Info) << "MAP FINISH!!" << RTT::endlog();
     if (inertia_feedback->connected())
-        inertia_feedback->dynamicFeedback = Eigen::Map<Eigen::MatrixXd>(franka_model->mass(franka_state, franka_state.I_load, franka_state.m_load, franka_state.F_x_Cload).data(), dof, dof).cast<float>();
+        inertia_feedback->dynamicFeedback = Eigen::Map<Eigen::MatrixXd>(franka_model->mass(franka_state).data(), dof, dof).cast<float>();
 
     if (coriolis_feedback->connected())
-        coriolis_feedback->dynamicFeedback = Eigen::Map<Eigen::VectorXd>(franka_model->coriolis(franka_state, franka_state.I_load, franka_state.m_load, franka_state.F_x_Cload).data(), dof).cast<float>();
+        coriolis_feedback->dynamicFeedback = Eigen::Map<Eigen::VectorXd>(franka_model->coriolis(franka_state).data(), dof).cast<float>();
 
     if (gravity_feedback->connected())
-        gravity_feedback->dynamicFeedback = Eigen::Map<Eigen::VectorXd>(franka_model->gravity(franka_state, franka_state.m_load, franka_state.F_x_Cload).data(), dof).cast<float>();
+        gravity_feedback->dynamicFeedback = Eigen::Map<Eigen::VectorXd>(franka_model->gravity(franka_state).data(), dof).cast<float>();
 
     if (jacobian_feedback->connected())
         jacobian_feedback->dynamicFeedback = Eigen::Map<Eigen::MatrixXd>(franka_model->zeroJacobian(franka::Frame::kFlange,franka_state).data(), 6, dof).cast<float>();
