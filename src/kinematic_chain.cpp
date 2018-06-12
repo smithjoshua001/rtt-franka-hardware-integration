@@ -119,18 +119,18 @@ bool KinematicChain::sense() {
     if (jacobian_feedback->connected())
         jacobian_feedback->dynamicFeedback = Eigen::Map<Eigen::MatrixXd>(franka_model->zeroJacobian(franka::Frame::kFlange,franka_state).data(), 6, dof).cast<float>();
 
-    //RTT::log(RTT::Info) << "WRITE!!"<< franka_state.control_command_success_rate << ", "<<std::to_string(franka_state.control_command_success_rate>0.8) << RTT::endlog();
+    RTT::log(RTT::Info) << "WRITE!!"<< franka_state.control_command_success_rate << ", "<<std::to_string(franka_state.control_command_success_rate>0.8) << RTT::endlog();
     if(franka_state.control_command_success_rate>0.8){
-    jf->write();
-    if (inertia_feedback->connected())
-        inertia_feedback->write();
-    if (coriolis_feedback->connected())
-        coriolis_feedback->write();
-    if (gravity_feedback->connected())
-        gravity_feedback->write();
-    if (jacobian_feedback->connected())
-        jacobian_feedback->write();
-}
+	    jf->write();
+	    if (inertia_feedback->connected())
+	        inertia_feedback->write();
+	    if (coriolis_feedback->connected())
+	        coriolis_feedback->write();
+	    if (gravity_feedback->connected())
+	        gravity_feedback->write();
+	    if (jacobian_feedback->connected())
+	        jacobian_feedback->write();
+	}
 
 
     return true;
