@@ -83,7 +83,10 @@ link_directories(${orocos_kdl_LIBRARY_DIRS})
 
 find_package(Franka REQUIRED)
 get_target_property(Franka_INCLUDE_DIRS ${Franka_LIBRARIES} INTERFACE_INCLUDE_DIRECTORIES)
-include_directories(${Franka_INCLUDE_DIRS})
+include_directories(${Franka_INCLUDE_DIRS}
+    ${Franka_DIR}/../src
+    ${Franka_DIR}/../common/include
+)
 message(STATUS "FRANKA: ${Franka_INCLUDE_DIRS}")
 
 find_library(Poco REQUIRED COMPONENTS Net Foundation)
@@ -94,6 +97,7 @@ link_directories(
   ${PROJECT_NAME_BIN}/lib
   ${Boost_LIBRARY_DIR}
   ${Xenomai_LIBRARY_DIRS}
+  ${Franka_LIBRARY_DIRS}
 )
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
