@@ -34,3 +34,5 @@
 *.user
 /build
 .clang_complete
+orocos.log
+tags
