@@ -33,4 +33,5 @@
 
 *.user
 /build
+/test/robot_data_test/build
 .clang_complete
