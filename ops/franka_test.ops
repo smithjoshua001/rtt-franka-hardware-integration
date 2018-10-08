@@ -1,10 +1,9 @@
 import("eigen_typekit")
 import("kdl_typekit")
 import("rst-rt_typekit")
-
 import("rtt-franka-hardware-integration")
+import("robot_data_test")
 require("os")
-
 
 #var string path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/Franka/model.urdf"
 #var string path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/Franka/model.srdf"
@@ -13,17 +12,12 @@ var string path_model_urdf = "/home/franka/cogimon-gazebo-models/franka-panda-ar
 var string path_model_srdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.srdf"
 
 loadComponent("Franka", "franka::franka_robot")
-#setActivityOnCPU("Franka", 0, 90, ORO_SCHED_RT, 2)
-#setActivityOnCPU("Franka", 0, 90, ORO_SCHED_RT, 60)
 setActivity("Franka", 0.001, 2, ORO_SCHED_RT)
-#setActivity("Franka", 0.001, 2, ORO_SCHED_OTHER)
 Franka.ip_addr = "172.16.0.2"
 Franka.addChain("Franka", "172.16.0.2", path_model_urdf, path_model_srdf)
 Franka.configure()
 Franka.setControlMode("Franka", "JointTorqueCtrl")
-#Franka.start()
 
-import("robot_data_test")
 loadComponent("test", "Robot_data_test")
 setActivity("test", 0.005, 2, ORO_SCHED_RT)
 var ConnPolicy cp

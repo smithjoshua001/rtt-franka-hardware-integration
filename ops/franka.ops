@@ -1,7 +1,6 @@
 import("eigen_typekit")
 import("kdl_typekit")
 import("rst-rt_typekit")
-
 import("rtt-franka-hardware-integration")
 require("os")
 
