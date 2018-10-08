@@ -37,9 +37,11 @@ namespace franka {
             RTT::FlowStatus joint_cmd_fs;
             T joint_cmd;
             std::function < Eigen::VectorXf & (T &) > conversion;
+
             bool connected() override {
                 return orocos_port.connected();
             }
+
             Eigen::VectorXf &value() override {
                 return conversion(joint_cmd);
             }
@@ -59,13 +61,16 @@ namespace franka {
 
             T joint_feedback;
             RTT::OutputPort < T > orocos_port;
+
             void write() {
                 orocos_port.write(joint_feedback);
             }
+
             bool connected() {
                 return orocos_port.connected();
             }
     };
+
     template < class T > class DynamicFeedback {
         public:
             DynamicFeedback(std::string name, RTT::DataFlowInterface &ports, std::string feedback_name, std::function < void(T &) > initalization) {
@@ -80,9 +85,11 @@ namespace franka {
 
             T dynamicFeedback;
             RTT::OutputPort < T > orocos_port;
+
             void write() {
                 orocos_port.write(dynamicFeedback);
             }
+
             bool connected() {
                 return orocos_port.connected();
             }

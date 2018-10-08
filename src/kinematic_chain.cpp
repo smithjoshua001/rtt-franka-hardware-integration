@@ -51,7 +51,7 @@ void KinematicChain::setFeedBack() {
     inertia_feedback = std::make_unique<franka::DynamicFeedback<Eigen::MatrixXf> >(kinematic_chain_name, this->ports, "_InertiaFeedback", [this](Eigen::MatrixXf &in) -> void {in(dof, dof); in.setZero();});
     coriolis_feedback = std::make_unique<franka::DynamicFeedback<Eigen::VectorXf> >(kinematic_chain_name, this->ports, "_CoriolisFeedback", [this](Eigen::VectorXf &in) -> void {in(dof); in.setZero();});
     gravity_feedback = std::make_unique<franka::DynamicFeedback<Eigen::VectorXf> >(kinematic_chain_name, this->ports, "_GravityFeedback", [this](Eigen::VectorXf &in) -> void {in(dof); in.setZero();});
-     jacobian_feedback = std::make_unique<franka::DynamicFeedback<Eigen::MatrixXf> >(kinematic_chain_name, this->ports, "_JacobianFeedback", [this](Eigen::MatrixXf &in) -> void {in(6, dof); in.setZero();});
+    jacobian_feedback = std::make_unique<franka::DynamicFeedback<Eigen::MatrixXf> >(kinematic_chain_name, this->ports, "_JacobianFeedback", [this](Eigen::MatrixXf &in) -> void {in(6, dof); in.setZero();});
 }
 
 // bool KinematicChain::setController(const std::string &controller_type) {}
@@ -61,21 +61,43 @@ bool KinematicChain::setControlMode(const std::string &controlMode) {
     // }
     RTT::log(RTT::Info) << "KC set control mode " << this->kinematic_chain_name << RTT::endlog();
 
-    motion_command.q_d.fill(0);
-    motion_command.dq_d.fill(0);
-    motion_command.O_T_EE_d.fill(0);
-    motion_command.O_dP_EE_d.fill(0);
-    motion_command.elbow_d.fill(0);
+    motion_command.q_c.fill(0);
+    motion_command.dq_c.fill(0);
+    motion_command.O_T_EE_c.fill(0);
+    motion_command.O_dP_EE_c.fill(0);
+    motion_command.elbow_c.fill(0);
 
     control_command.tau_J_d.fill(0);
     RTT::log(RTT::Info) << "fill 0 end " << franka::ControlModeMap.find(franka::ControlModes::Torque)->second << RTT::endlog();
+
     if (controlMode == franka::ControlModeMap.find(franka::ControlModes::Torque)->second) {
         RTT::log(RTT::Info) << "found map string" << RTT::endlog();
         current_control_mode = franka::ControlModes::Torque;
         RTT::log(RTT::Info) << "To torque!" << RTT::endlog();
-        jc = std::make_unique<franka::JointController<rstrt::dynamics::JointTorques> >(kinematic_chain_name, this->ports, franka::ControlModes::Torque, [](rstrt::dynamics::JointTorques &input) -> Eigen::VectorXf & {return input.torques;});
+        jc = std::make_unique<franka::JointController<rstrt::dynamics::JointTorques> >(kinematic_chain_name,
+                                                                                       this->ports,
+                                                                                       franka::ControlModes::Torque,
+                                                                                       [](rstrt::dynamics::JointTorques &input) -> Eigen::VectorXf & {return input.torques;});
         RTT::log(RTT::Info) << "Created relavant controller" << RTT::endlog();
         current_control_input_var = &(control_command.tau_J_d);
+    } else if(controlMode == franka::ControlModeMap.find(franka::ControlModes::Velocity)->second) {
+        RTT::log(RTT::Info) << "Found mapping string" << RTT::endlog();
+        current_control_mode = franka::ControlModes::Velocity;
+        jc = std::make_unique<franka::JointController<rstrt::kinematics::JointVelocities>>(kinematic_chain_name,
+                                                                                           this->ports,
+                                                                                           franka::ControlModes::Velocity,
+                                                                                           [](rstrt::kinematics::JointVelocities &input) -> Eigen::VectorXf& {return input.velocities;});
+        RTT::log(RTT::Info) << "Set control mode to velocity" << RTT::endlog();
+        current_control_input_var = &(motion_command.dq_c);
+    } else if(controlMode == franka::ControlModeMap.find(franka::ControlModes::Position)->second) {
+        RTT::log(RTT::Info) << "Found mapping string" << RTT::endlog();
+        current_control_mode = franka::ControlModes::Position;
+        jc = std::make_unique<franka::JointController<rstrt::kinematics::JointAngles>>(kinematic_chain_name,
+                                                                                       this->ports,
+                                                                                       franka::ControlModes::Position,
+                                                                                       [](rstrt::kinematics::JointAngles &input) -> Eigen::VectorXf& {return input.angles;});
+        RTT::log(RTT::Info) << "Set control mode to position" << RTT::endlog();
+        current_control_input_var = &(motion_command.dq_c);
     } else {
         RTT::log(RTT::Error) << "Control Mode has not been implemented " << controlMode << RTT::endlog();
         return false;
@@ -91,6 +113,16 @@ bool KinematicChain::startKinematicChain() {
     case franka::ControlModes::Torque:
         RTT::log(RTT::Info) << "STARTED KINEMATIC CHAIN IN MODE: " << franka::ControlModeMap.find(franka::ControlModes::Torque)->second << RTT::endlog();
         motion_id = franka_control->startMotion(research_interface::robot::Move::ControllerMode::kExternalController, franka::MotionGeneratorTraits<franka::JointVelocities>::kMotionGeneratorMode, kDefaultDeviation, kDefaultDeviation);
+        break;
+    case franka::ControlModes::Velocity:
+        RTT::log(RTT::Info) << "STARTED KINEMATIC CHAIN IN MODE: " << franka::ControlModeMap.find(franka::ControlModes::Velocity)->second << RTT::endlog();
+        // TODO?
+        motion_id = franka_control->startMotion(research_interface::robot::Move::ControllerMode::kExternalController, franka::MotionGeneratorTraits<franka::JointVelocities>::kMotionGeneratorMode, kDefaultDeviation, kDefaultDeviation);
+        break;
+    case franka::ControlModes::Position:
+        RTT::log(RTT::Info) << "STARTED KINEMATIC CHAIN IN MODE: " << franka::ControlModeMap.find(franka::ControlModes::Velocity)->second << RTT::endlog();
+        // TODO?
+        motion_id = franka_control->startMotion(research_interface::robot::Move::ControllerMode::kExternalController, franka::MotionGeneratorTraits<franka::JointPositions>::kMotionGeneratorMode, kDefaultDeviation, kDefaultDeviation);
         break;
     default:
         return false;
@@ -165,7 +197,8 @@ void KinematicChain::move() try {
     if (jc->connected() /*&& jc->read() != RTT::NoData*/) {
         franka_state = franka_control->update(&motion_command, &control_command);
     }else{
-	franka_state = franka_control->update();
+        //franka_state = franka_control->update();
+        RTT::log(RTT::Warning) << "Joint controller not connected?!" << RTT::endlog();
     }
     // }
     franka_control->throwOnMotionError(franka_state, motion_id);

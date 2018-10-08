@@ -32,6 +32,7 @@
 *.app
 
 *.user
-/build
-/test/robot_data_test/build
+build/
 .clang_complete
+orocos.log
+tags
