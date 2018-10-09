@@ -12,18 +12,18 @@ var string path_model_urdf = "/home/franka/cogimon-gazebo-models/franka-panda-ar
 var string path_model_srdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.srdf";
 
 loadComponent("Franka", "franka::franka_robot");
-setActivity("Franka", 0.001, 2, ORO_SCHED_RT);
+setActivity("Franka", 0.001, 3, ORO_SCHED_RT);
 Franka.ip_addr = "172.16.0.2";
 Franka.addChain("Franka", "172.16.0.2", path_model_urdf, path_model_srdf);
 Franka.configure();
 Franka.setControlMode("Franka", "JointTorqueCtrl");
 
 loadComponent("test", "Robot_data_test");
-setActivity("test", 0.005, 2, ORO_SCHED_RT);
+setActivity("test", 0.001, 2, ORO_SCHED_RT);
 var ConnPolicy cp
 connect("test.joint_vals_in_port", "Franka.full_arm__JointFeedback", cp);
 #connect("test.grav_in_port", "Franka.full_arm__GravityFeedback", cp);
 #connect("test.coriolis_in_port", "Franka.full_arm__CoriolisFeedback", cp);
-#connect("test.joint_trqs_out_port", "Franka.full_arm_JointTorqueCtrl", cp);
+connect("test.joint_trqs_out_port", "Franka.full_arm_JointTorqueCtrl", cp);
 test.configure();
 test.start();
