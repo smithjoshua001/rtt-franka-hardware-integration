@@ -18,7 +18,7 @@ KinematicChain::KinematicChain(const std::string &chain_name,
 }
 
 bool KinematicChain::initKinematicChain() {
-    RTT::log(RTT::Info) << kinematic_chain_name << "\n";
+    RTT::log(RTT::Info) << kinematic_chain_name << RTT::endlog();
     setFeedBack();
     setCollisionBehavior(
         {{1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0}}, {{1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0}},
