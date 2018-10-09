@@ -43,7 +43,7 @@ void Robot_data_test::updateHook(){
   out_trq_data.torques += grav_in_data;
   out_trq_data.torques += coriolis_in_data;
 
-  RTT::log(RTT::Info) << out_trq_data.torques.transpose() << RTT::endlog();
+  //RTT::log(RTT::Info) << out_trq_data.torques.transpose() << RTT::endlog();
 
   out_trq_port.write(out_trq_data);
 }
