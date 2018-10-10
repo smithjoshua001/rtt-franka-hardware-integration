@@ -9,7 +9,7 @@
 #include <rst-rt/kinematics/JointAngles.hpp>
 
 class Robot_data_test : public RTT::TaskContext{
-  public:
+public:
     Robot_data_test(std::string const& name);
     bool configureHook();
     bool startHook();
@@ -17,7 +17,7 @@ class Robot_data_test : public RTT::TaskContext{
     void stopHook();
     void cleanupHook();
 
-  private:
+private:
     RTT::InputPort<rstrt::robot::JointState> joint_state_in_port;
     RTT::FlowStatus joint_state_in_flow;
     rstrt::robot::JointState joint_state_in_data;
