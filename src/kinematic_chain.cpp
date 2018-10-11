@@ -174,8 +174,8 @@ void KinematicChain::getCommand() {
         //std::copy(jc->value().data(), jc->value().data() + 7, (*current_control_input_var).begin());
         // RTT::log(RTT::Info) << "COMMAND  ";
         for (size_t i = 0; i < 7; i++) {
-	     (*current_control_input_var)[i] = jc->value()(i);
-             //RTT::log(RTT::Info) << current_control_input_var->at(i) << " ";
+            (*current_control_input_var)[i] = static_cast<double>(jc->value()(i));
+            //RTT::log(RTT::Info) << current_control_input_var->at(i) << " ";
         }
         //RTT::log(RTT::Info) << RTT::endlog();
     } else {
@@ -218,7 +218,7 @@ void KinematicChain::setCollisionBehavior(const std::array<double, 7>& lower_tor
                                  const std::array<double, 7>& upper_torque_thresholds,
                                  const std::array<double, 6>& lower_force_thresholds,
                                  const std::array<double, 6>& upper_force_thresholds) {
-  ((franka::Robot::Impl*)franka_control.get())->executeCommand<research_interface::robot::SetCollisionBehavior>(
+  static_cast<franka::Robot::Impl*>(franka_control.get())->executeCommand<research_interface::robot::SetCollisionBehavior>(
       lower_torque_thresholds, upper_torque_thresholds, lower_torque_thresholds,
       upper_torque_thresholds, lower_force_thresholds, upper_force_thresholds,
       lower_force_thresholds, upper_force_thresholds);
@@ -229,7 +229,7 @@ void KinematicChain::setFilters(double joint_position_filter_frequency,
                        double cartesian_position_filter_frequency,
                        double cartesian_velocity_filter_frequency,
                        double controller_filter_frequency) {
-  ((franka::Robot::Impl*)franka_control.get())->executeCommand<research_interface::robot::SetFilters>(
+  static_cast<franka::Robot::Impl*>(franka_control.get())->executeCommand<research_interface::robot::SetFilters>(
       joint_position_filter_frequency, joint_velocity_filter_frequency,
       cartesian_position_filter_frequency, cartesian_velocity_filter_frequency,
       controller_filter_frequency);
