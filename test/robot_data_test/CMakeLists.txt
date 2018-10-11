@@ -3,6 +3,7 @@
 # cmake >= 2.6.3
 #
 cmake_minimum_required(VERSION 2.6.3)
+set(CMAKE_CXX_STANDARD 14)
 
 #
 # This creates a standard cmake project. You may extend this file with

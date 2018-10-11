@@ -7,6 +7,8 @@
 #include <rst-rt/dynamics/JointTorques.hpp>
 #include <rst-rt/kinematics/JointVelocities.hpp>
 #include <rst-rt/kinematics/JointAngles.hpp>
+#include <Eigen/Core>
+#include "QuinticPolynomial.hpp"
 
 class Robot_data_test : public RTT::TaskContext{
 public:
@@ -43,10 +45,11 @@ private:
     void setVel(int idx, float val);
     void setPos(int idx, float val);
 
-    double current_time, start_time, end_time, total_time;
-    bool done;
-    int index;
-    double tau;
-    void ramp(int idx, double tau, double tot);
+    QuinticPolynomial<float> qp;
+    Eigen::VectorXf start_conf, end_conf;
+    double current_time = 0, start_time = 0, end_time = 0, total_time = 0;
+    int idx;
+    bool lock;
+    void ramp(int _idx, float _tau, double _tot);
 };
 #endif

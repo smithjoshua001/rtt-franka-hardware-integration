@@ -37,7 +37,7 @@ Robot_data_test::Robot_data_test(std::string const& name) : TaskContext(name){
     addOperation("setVelocity", &Robot_data_test::setVel, this, RTT::ClientThread);
     addOperation("setPosition", &Robot_data_test::setPos, this, RTT::ClientThread);
     addOperation("ramp", &Robot_data_test::ramp, this, RTT::ClientThread);
-    done = false;
+    lock = false;
 }
 
 bool Robot_data_test::configureHook(){
@@ -53,7 +53,6 @@ bool Robot_data_test::startHook(){
 void Robot_data_test::updateHook(){
     current_time = 1E-9 * RTT::os::TimeService::ticks2nsecs(RTT::os::TimeService::Instance()->getTicks());
 
-
     joint_state_in_flow = joint_state_in_port.read(joint_state_in_data);
     grav_in_flow = grav_in_port.read(grav_in_data);
     coriolis_in_flow = coriolis_in_port.read(coriolis_in_data);
@@ -68,10 +67,11 @@ void Robot_data_test::updateHook(){
     }
 
     if(current_time < end_time) {
-        out_trq_data.torques(index) = tau * (current_time - start_time)/total_time;
-        RTT::log(RTT::Info) << out_trq_data.torques(index) <<"\t"<< (current_time - start_time)/total_time<<RTT::endlog();
+        //out_trq_data.torques(idx) = static_cast<float>(tau * (current_time - start_time) / total_time + tau_0);
+        //RTT::log(RTT::Info) << out_trq_data.torques(idx) <<"\t"<< (current_time - start_time)/total_time<<RTT::endlog();
+        out_trq_data.torques = qp.getQ(current_time);
     } else {
-        done = true;
+        lock = false;
     }
 
     out_trq_port.write(out_trq_data);
@@ -101,8 +101,8 @@ void Robot_data_test::setPos(int idx, float val) {
     this->out_pos_data.angles(idx) = val;
 }
 
-void Robot_data_test::ramp(int _idx, double _tau, double _tot) {
-    if(!done) {
+void Robot_data_test::ramp(int _idx, float _tau, double _tot) {
+    if(lock) {
         return;
     }
 
@@ -110,8 +110,14 @@ void Robot_data_test::ramp(int _idx, double _tau, double _tot) {
     start_time = current_time;
     end_time = start_time + total_time;
 
-    index = _idx;
-    tau = _tau;
+    idx = _idx;
+    start_conf = out_trq_data.torques;
+    end_conf = start_conf;
+    end_conf(idx) = _tau;
+
+    qp = QuinticPolynomial<float>(start_time, end_time, start_conf, end_conf);
+
+    lock = true;
 }
 /*
  * Using this macro, only one component may live
