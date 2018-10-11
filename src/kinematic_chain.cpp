@@ -49,11 +49,11 @@ const std::string &KinematicChain::getCurrentControlMode() {
 }
 
 void KinematicChain::setFeedBack() {
-    jf = std::make_unique<franka::JointFeedback<rstrt::robot::JointState> >(kinematic_chain_name, this->ports, "_JointFeedback", [this](rstrt::robot::JointState &in) -> void {in = rstrt::robot::JointState(dof); in.angles.setZero(); in.velocities.setZero(); in.torques.setZero();});
-    inertia_feedback = std::make_unique<franka::DynamicFeedback<Eigen::MatrixXf> >(kinematic_chain_name, this->ports, "_InertiaFeedback", [this](Eigen::MatrixXf &in) -> void {in(dof, dof); in.setZero();});
-    coriolis_feedback = std::make_unique<franka::DynamicFeedback<Eigen::VectorXf> >(kinematic_chain_name, this->ports, "_CoriolisFeedback", [this](Eigen::VectorXf &in) -> void {in(dof); in.setZero();});
-    gravity_feedback = std::make_unique<franka::DynamicFeedback<Eigen::VectorXf> >(kinematic_chain_name, this->ports, "_GravityFeedback", [this](Eigen::VectorXf &in) -> void {in(dof); in.setZero();});
-    jacobian_feedback = std::make_unique<franka::DynamicFeedback<Eigen::MatrixXf> >(kinematic_chain_name, this->ports, "_JacobianFeedback", [this](Eigen::MatrixXf &in) -> void {in(6, dof); in.setZero();});
+    jf = std::make_unique<franka::JointFeedback<rstrt::robot::JointState> >(kinematic_chain_name, this->ports, "JointFeedback", [this](rstrt::robot::JointState &in) -> void {in = rstrt::robot::JointState(dof); in.angles.setZero(); in.velocities.setZero(); in.torques.setZero();});
+    inertia_feedback = std::make_unique<franka::DynamicFeedback<Eigen::MatrixXf> >(kinematic_chain_name, this->ports, "InertiaFeedback", [this](Eigen::MatrixXf &in) -> void {in(dof, dof); in.setZero();});
+    coriolis_feedback = std::make_unique<franka::DynamicFeedback<Eigen::VectorXf> >(kinematic_chain_name, this->ports, "CoriolisFeedback", [this](Eigen::VectorXf &in) -> void {in(dof); in.setZero();});
+    gravity_feedback = std::make_unique<franka::DynamicFeedback<Eigen::VectorXf> >(kinematic_chain_name, this->ports, "GravityFeedback", [this](Eigen::VectorXf &in) -> void {in(dof); in.setZero();});
+    jacobian_feedback = std::make_unique<franka::DynamicFeedback<Eigen::MatrixXf> >(kinematic_chain_name, this->ports, "JacobianFeedback", [this](Eigen::MatrixXf &in) -> void {in(6, dof); in.setZero();});
 }
 
 // bool KinematicChain::setController(const std::string &controller_type) {}
