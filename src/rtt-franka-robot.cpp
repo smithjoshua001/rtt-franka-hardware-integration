@@ -40,6 +40,7 @@ franka_robot::franka_robot(const std::string &name) :
                        RTT::ClientThread);
 
     // Default IP of this computer
+    // TODO What is this actually used for?
     this->ip_addr = "192.168.0.1";
     this->addProperty("ip_addr", ip_addr).doc("IP address of the computer");
 
