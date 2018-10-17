@@ -4,11 +4,11 @@ import("rst-rt_typekit");
 import("rtt-franka-hardware-integration");
 require("os");
 
-#var string path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/franka/model.urdf";
-#var string path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/franka/model.srdf";
+var string path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/franka/model.urdf";
+var string path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/franka/model.srdf";
 
-var string path_model_urdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.urdf";
-var string path_model_srdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.srdf";
+#var string path_model_urdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.urdf";
+#var string path_model_srdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.srdf";
 
 loadComponent("franka", "franka::franka_robot");
 setActivity("franka", 0.001, 2, ORO_SCHED_RT);
