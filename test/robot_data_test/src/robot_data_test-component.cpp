@@ -51,29 +51,28 @@ bool Robot_data_test::startHook(){
 }
 
 void Robot_data_test::updateHook(){
+    // Get current time
     current_time = 1E-9 * RTT::os::TimeService::ticks2nsecs(RTT::os::TimeService::Instance()->getTicks());
 
+    // Read state from input ports
     joint_state_in_flow = joint_state_in_port.read(joint_state_in_data);
     grav_in_flow = grav_in_port.read(grav_in_data);
     coriolis_in_flow = coriolis_in_port.read(coriolis_in_data);
 
+    // Update current joint positions & velocities
     if(joint_state_in_flow != RTT::NoData) {
-        //out_trq_data.torques = joint_state_in_data.torques;
-        //out_trq_data.torques += grav_in_data;
-        //out_trq_data.torques += coriolis_in_data;
-
-        //      out_vel_data.velocities = joint_state_in_data.velocities;
-        //      out_pos_data.angles = joint_state_in_data.angles;
+        out_pos_data.angles = joint_state_in_data.angles;
+        out_vel_data.velocities = joint_state_in_data.velocities;
     }
 
+    // Ramp up values
     if(current_time < end_time) {
-        //out_trq_data.torques(idx) = static_cast<float>(tau * (current_time - start_time) / total_time + tau_0);
-        //RTT::log(RTT::Info) << out_trq_data.torques(idx) <<"\t"<< (current_time - start_time)/total_time<<RTT::endlog();
         out_trq_data.torques = qp.getQ(current_time);
     } else {
         lock = false;
     }
 
+    // Write values to output ports
     out_trq_port.write(out_trq_data);
     out_vel_port.write(out_vel_data);
     out_pos_port.write(out_pos_data);
@@ -101,19 +100,18 @@ void Robot_data_test::setPos(int idx, float val) {
     this->out_pos_data.angles(idx) = val;
 }
 
-void Robot_data_test::ramp(int _idx, float _tau, double _tot) {
+void Robot_data_test::ramp(int idx, float target, double time) {
     if(lock) {
         return;
     }
 
-    total_time = _tot;
+    total_time = time;
     start_time = current_time;
     end_time = start_time + total_time;
 
-    idx = _idx;
     start_conf = out_trq_data.torques;
     end_conf = start_conf;
-    end_conf(idx) = _tau;
+    end_conf(idx) = target;
 
     qp = QuinticPolynomial<float>(start_time, end_time, start_conf, end_conf);
 

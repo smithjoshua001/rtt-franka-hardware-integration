@@ -48,8 +48,7 @@ private:
     QuinticPolynomial<float> qp;
     Eigen::VectorXf start_conf, end_conf;
     double current_time = 0, start_time = 0, end_time = 0, total_time = 0;
-    int idx;
     bool lock;
-    void ramp(int _idx, float _tau, double _tot);
+    void ramp(int idx, float target, double time);
 };
 #endif
