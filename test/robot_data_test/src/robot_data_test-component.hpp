@@ -46,8 +46,8 @@ private:
     void setPos(int idx, float val);
 
     QuinticPolynomial<float> qp;
-    Eigen::VectorXf start_conf, end_conf;
-    double current_time = 0, start_time = 0, end_time = 0, total_time = 0;
+    Eigen::VectorXf *ramp_input, *ramp_output;
+    double current_time = 0, end_time = 0;
     bool lock;
     void ramp(int idx, float target, double time);
 };

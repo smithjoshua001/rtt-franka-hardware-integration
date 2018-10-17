@@ -46,6 +46,16 @@ bool Robot_data_test::configureHook(){
 }
 
 bool Robot_data_test::startHook(){
+    if(out_pos_port.connected()) {
+        ramp_input = &joint_state_in_data.angles;
+        ramp_output = &out_pos_data.angles;
+    } else if(out_vel_port.connected()) {
+        ramp_input = &joint_state_in_data.velocities;
+        ramp_output = &out_vel_data.velocities;
+    } else {
+        ramp_input = &out_trq_data.torques;
+        ramp_output = &out_trq_data.torques;
+    }
 
     return true;
 }
@@ -59,15 +69,9 @@ void Robot_data_test::updateHook(){
     grav_in_flow = grav_in_port.read(grav_in_data);
     coriolis_in_flow = coriolis_in_port.read(coriolis_in_data);
 
-    // Update current joint positions & velocities
-    if(joint_state_in_flow != RTT::NoData) {
-        out_pos_data.angles = joint_state_in_data.angles;
-        out_vel_data.velocities = joint_state_in_data.velocities;
-    }
-
     // Ramp up values
     if(current_time < end_time) {
-        out_trq_data.torques = qp.getQ(current_time);
+        *ramp_output = qp.getQ(current_time);
     } else {
         lock = false;
     }
@@ -105,12 +109,12 @@ void Robot_data_test::ramp(int idx, float target, double time) {
         return;
     }
 
-    total_time = time;
-    start_time = current_time;
+    double total_time = time;
+    double start_time = current_time;
     end_time = start_time + total_time;
 
-    start_conf = out_trq_data.torques;
-    end_conf = start_conf;
+    Eigen::VectorXf start_conf = *ramp_input;
+    Eigen::VectorXf end_conf = start_conf;
     end_conf(idx) = target;
 
     qp = QuinticPolynomial<float>(start_time, end_time, start_conf, end_conf);
