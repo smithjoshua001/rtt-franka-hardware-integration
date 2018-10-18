@@ -69,6 +69,9 @@ void Robot_data_test::updateHook(){
     grav_in_flow = grav_in_port.read(grav_in_data);
     coriolis_in_flow = coriolis_in_port.read(coriolis_in_data);
 
+    out_pos_data.angles = joint_state_in_data.angles;
+    out_vel_data.velocities = joint_state_in_data.velocities;
+
     // Ramp up values
     if(current_time < end_time) {
         *ramp_output = qp.getQ(current_time);
