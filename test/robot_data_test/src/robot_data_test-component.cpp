@@ -47,12 +47,19 @@ bool Robot_data_test::configureHook(){
 
 bool Robot_data_test::startHook(){
     if(out_pos_port.connected()) {
+        RTT::log(RTT::Info) << "Starting test component in position mode" << RTT::endlog();
         ramp_input = &joint_state_in_data.angles;
         ramp_output = &out_pos_data.angles;
     } else if(out_vel_port.connected()) {
+        RTT::log(RTT::Info) << "Starting test component in velocity mode" << RTT::endlog();
         ramp_input = &joint_state_in_data.velocities;
         ramp_output = &out_vel_data.velocities;
     } else {
+        if(!out_trq_port.connected()) {
+            RTT::log(RTT::Info) << "No output port connected, falling back to default" << RTT::endlog();
+        }
+
+        RTT::log(RTT::Info) << "Starting test component in torque mode" << RTT::endlog();
         ramp_input = &out_trq_data.torques;
         ramp_output = &out_trq_data.torques;
     }
