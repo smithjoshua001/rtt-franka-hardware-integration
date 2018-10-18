@@ -11,7 +11,7 @@ var string path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/franka/model.srdf"
 #var string path_model_srdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.srdf";
 
 loadComponent("franka", "franka::franka_robot");
-setActivity("franka", 0.001, 2, ORO_SCHED_RT);
+setActivity("franka", 0.0005, 2, ORO_SCHED_RT);
 franka.ip_addr = "172.16.0.2";
 franka.addChain("franka", "172.16.0.2" ,path_model_urdf, path_model_srdf);
 franka.configure();

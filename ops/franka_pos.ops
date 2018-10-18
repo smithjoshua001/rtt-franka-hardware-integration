@@ -12,7 +12,7 @@ var string path_model_srdf = os.getenv("GAZEBO_MODEL_PATH") + "/franka/model.srd
 #var string path_model_srdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.srdf";
 
 loadComponent("test", "Robot_data_test");
-setActivity("test", 0.001, 2, ORO_SCHED_RT);
+setActivity("test", 0.001, 3, ORO_SCHED_RT);
 test.configure();
 
 loadComponent("Franka", "franka::franka_robot");
