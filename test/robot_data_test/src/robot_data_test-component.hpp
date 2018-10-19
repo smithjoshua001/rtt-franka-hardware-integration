@@ -41,12 +41,10 @@ private:
     RTT::OutputPort<rstrt::kinematics::JointAngles> out_pos_port;
     rstrt::kinematics::JointAngles out_pos_data;
 
-    void setTrq(int idx, float val);
-    void setVel(int idx, float val);
-    void setPos(int idx, float val);
+    void setValue(int idx, float val);
 
     QuinticPolynomial<float> qp;
-    Eigen::VectorXf *ramp_input, *ramp_output;
+    Eigen::VectorXf* ramp_input, *ramp_output;
     double current_time = 0, end_time = 0;
     bool lock;
     void ramp(int idx, float target, double time);

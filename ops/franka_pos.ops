@@ -21,7 +21,6 @@ Franka.ip_addr = "172.16.0.2";
 Franka.addChain("Franka", "172.16.0.2", path_model_urdf, path_model_srdf);
 Franka.setControlMode("Franka", "JointPositionCtrl");
 Franka.configure();
-#Franka.start();
 
 var ConnPolicy cp
 connect("test.joint_vals_in_port", "Franka.full_arm_JointFeedback", cp);
@@ -29,4 +28,5 @@ connect("test.joint_vals_in_port", "Franka.full_arm_JointFeedback", cp);
 #connect("test.coriolis_in_port", "Franka.full_arm_CoriolisFeedback", cp);
 connect("test.joint_pos_out_port", "Franka.full_arm_JointPositionCtrl", cp);
 
-#test.start();
+Franka.start();
+test.start();
