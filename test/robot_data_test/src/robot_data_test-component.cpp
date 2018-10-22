@@ -38,11 +38,22 @@ Robot_data_test::Robot_data_test(std::string const& name) : TaskContext(name) {
 }
 
 bool Robot_data_test::configureHook() {
+    joint_state_in_flow = joint_state_in_port.read(joint_state_in_data);
+
+    if(joint_state_in_flow != RTT::NoData) {
+        out_pos_data.angles = joint_state_in_data.angles;
+        out_vel_data.velocities = joint_state_in_data.velocities;
+
+        out_pos_port.setDataSample(out_pos_data);
+        out_vel_port.setDataSample(out_vel_data);
+    }
 
     return true;
 }
 
 bool Robot_data_test::startHook() {
+    joint_state_in_flow = joint_state_in_port.read(joint_state_in_data);
+
     if(out_pos_port.connected()) {
         RTT::log(RTT::Info) << "Starting test component in position mode" << RTT::endlog();
         ramp_input = &(joint_state_in_data.angles);
@@ -87,7 +98,7 @@ void Robot_data_test::updateHook() {
     }
 
     // Write values to output ports
-    RTT::log(RTT::Info) << "torques: " << out_trq_data.torques << RTT::endlog();
+    RTT::log(RTT::Info) << "Values: " << ramp_output << RTT::endlog(); // ATTENTION: Apparently, removing this statement will cause GCC to optimize away our out_..._data, resulting in unexpected replies by the robot.
     out_trq_port.write(out_trq_data);
     out_vel_port.write(out_vel_data);
     out_pos_port.write(out_pos_data);
