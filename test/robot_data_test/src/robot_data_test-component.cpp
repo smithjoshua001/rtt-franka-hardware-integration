@@ -5,6 +5,8 @@
 Robot_data_test::Robot_data_test(std::string const& name) : TaskContext(name) {
     joint_state_in_flow = RTT::NoData;
     joint_state_in_data.angles.setZero(7);
+    joint_state_in_data.velocities.setZero(7);
+    joint_state_in_data.torques.setZero(7);
     this->addPort("joint_vals_in_port", joint_state_in_port);
 
     grav_in_flow = RTT::NoData;
@@ -68,12 +70,14 @@ void Robot_data_test::updateHook() {
 
     // Read state from input ports
     joint_state_in_flow = joint_state_in_port.read(joint_state_in_data);
-    grav_in_flow = grav_in_port.read(grav_in_data);
-    coriolis_in_flow = coriolis_in_port.read(coriolis_in_data);
+    //grav_in_flow = grav_in_port.read(grav_in_data);
+    //coriolis_in_flow = coriolis_in_port.read(coriolis_in_data);
 
     // Feed back joint positions & velocities
-    out_pos_data.angles = joint_state_in_data.angles;
-    out_vel_data.velocities = joint_state_in_data.velocities;
+    if(joint_state_in_flow != RTT::NoData) {
+        out_pos_data.angles = joint_state_in_data.angles;
+        out_vel_data.velocities = joint_state_in_data.velocities;
+    }
 
     // Ramp up values
     if(current_time < end_time) {
@@ -83,6 +87,7 @@ void Robot_data_test::updateHook() {
     }
 
     // Write values to output ports
+    RTT::log(RTT::Info) << "torques: " << out_trq_data.torques << RTT::endlog();
     out_trq_port.write(out_trq_data);
     out_vel_port.write(out_vel_data);
     out_pos_port.write(out_pos_data);
@@ -107,15 +112,13 @@ void Robot_data_test::ramp(int idx, float target, double time) {
         return;
     }
 
-    double total_time = time;
-    double start_time = current_time;
-    end_time = start_time + total_time;
+    end_time = current_time + time;
 
     Eigen::VectorXf start_conf = Eigen::VectorXf(*ramp_input);
     Eigen::VectorXf end_conf = start_conf;
     end_conf(idx) = target;
 
-    qp = QuinticPolynomial<float>(start_time, end_time, start_conf, end_conf);
+    qp = QuinticPolynomial<float>(current_time, end_time, start_conf, end_conf);
 
     lock = true;
 }
