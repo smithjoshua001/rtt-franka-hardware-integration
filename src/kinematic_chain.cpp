@@ -185,7 +185,11 @@ void KinematicChain::getCommand() {
 
 void KinematicChain::stop() try {
     //franka_control->cancelMotion(motion_id);
-    franka_control->finishMotion(motion_id, &motion_command, &control_command);
+    if(current_control_mode == franka::ControlModes::Torque) {
+        franka_control->finishMotion(motion_id, &motion_command, &control_command);
+    } else {
+        franka_control->finishMotion(motion_id, &motion_command, nullptr);
+    }
 } catch (...) {
     try {
         franka_control->cancelMotion(motion_id);
@@ -196,7 +200,11 @@ void KinematicChain::stop() try {
 void KinematicChain::move() try {
     // if (current_control_mode == franka::ControlModes::Torque) {
     if (jc->connected() /*&& jc->read() != RTT::NoData*/) {
-        franka_state = franka_control->update(&motion_command, &control_command);
+        if(current_control_mode == franka::ControlModes::Torque) {
+            franka_state = franka_control->update(&motion_command, &control_command);
+        } else {
+            franka_state = franka_control->update(&motion_command, nullptr);
+        }
     }else{
         //franka_state = franka_control->update();
         franka_state = franka_control->update(nullptr, nullptr);
