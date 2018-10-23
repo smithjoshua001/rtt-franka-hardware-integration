@@ -98,7 +98,7 @@ void Robot_data_test::updateHook() {
     }
 
     // Write values to output ports
-    RTT::log(RTT::Info) << "Values: " << ramp_output << RTT::endlog(); // ATTENTION: Apparently, removing this statement will cause GCC to optimize away our out_..._data, resulting in unexpected replies by the robot.
+    RTT::log(RTT::Info) << "Values: " << *ramp_output << RTT::endlog(); // ATTENTION: Apparently, removing this statement will cause GCC to optimize away our out_..._data, resulting in unexpected replies by the robot.
     out_trq_port.write(out_trq_data);
     out_vel_port.write(out_vel_data);
     out_pos_port.write(out_pos_data);
