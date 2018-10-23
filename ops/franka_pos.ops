@@ -8,9 +8,6 @@ require("os")
 var string path_model_urdf = os.getenv("GAZEBO_MODEL_PATH") + "/franka/model.urdf";
 var string path_model_srdf = os.getenv("GAZEBO_MODEL_PATH") + "/franka/model.srdf";
 
-#var string path_model_urdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.urdf";
-#var string path_model_srdf = "/home/franka/cogimon-gazebo-models/franka-panda-arm/model.srdf";
-
 loadComponent("Franka", "franka::franka_robot");
 setActivity("Franka", 0.0005, 90, ORO_SCHED_RT);
 Franka.ip_addr = "172.16.0.2";
@@ -19,12 +16,12 @@ Franka.setControlMode("Franka", "JointPositionCtrl");
 Franka.configure();
 Franka.start();
 
+loadComponent("test", "Robot_data_test");
+setActivity("test", 0.001, 80, ORO_SCHED_RT);
+
 var ConnPolicy cp
 connect("test.joint_vals_in_port", "Franka.full_arm_JointFeedback", cp);
 
-loadComponent("test", "Robot_data_test");
-setActivity("test", 0.001, 80, ORO_SCHED_RT);
 test.configure();
-
 connect("test.joint_pos_out_port", "Franka.full_arm_JointPositionCtrl", cp);
 #test.start();

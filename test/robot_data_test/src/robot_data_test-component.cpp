@@ -17,17 +17,7 @@ Robot_data_test::Robot_data_test(std::string const& name) : TaskContext(name) {
     coriolis_in_data.setZero(7);
     this->addPort("coriolis_in_port", coriolis_in_port);
 
-    out_trq_data.torques.setZero(7);
-    out_trq_port.setDataSample(out_trq_data);
-    this->addPort("joint_trqs_out_port", out_trq_port);
 
-    out_vel_data.velocities.setZero(7);
-    out_vel_port.setDataSample(out_vel_data);
-    this->addPort("joint_vels_out_port", out_vel_port);
-
-    out_pos_data.angles.setZero(7);
-    out_pos_port.setDataSample(out_pos_data);
-    this->addPort("joint_pos_out_port", out_pos_port);
 
     addOperation("setValue", &Robot_data_test::setValue, this, RTT::ClientThread);
     addOperation("ramp", &Robot_data_test::ramp, this, RTT::ClientThread);
@@ -38,8 +28,11 @@ Robot_data_test::Robot_data_test(std::string const& name) : TaskContext(name) {
 }
 
 bool Robot_data_test::configureHook() {
-    joint_state_in_flow = joint_state_in_port.read(joint_state_in_data);
+    out_trq_data.torques.setZero(7);
+    out_vel_data.velocities.setZero(7);
+    out_pos_data.angles.setZero(7);
 
+    joint_state_in_flow = joint_state_in_port.read(joint_state_in_data);
     if(joint_state_in_flow != RTT::NoData) {
         out_pos_data.angles = joint_state_in_data.angles;
         out_vel_data.velocities = joint_state_in_data.velocities;
@@ -48,12 +41,19 @@ bool Robot_data_test::configureHook() {
         out_vel_port.setDataSample(out_vel_data);
     }
 
+    out_trq_port.setDataSample(out_trq_data);
+    this->addPort("joint_trqs_out_port", out_trq_port);
+
+    out_vel_port.setDataSample(out_vel_data);
+    this->addPort("joint_vels_out_port", out_vel_port);
+
+    out_pos_port.setDataSample(out_pos_data);
+    this->addPort("joint_pos_out_port", out_pos_port);
+
     return true;
 }
 
 bool Robot_data_test::startHook() {
-    joint_state_in_flow = joint_state_in_port.read(joint_state_in_data);
-
     if(out_pos_port.connected()) {
         RTT::log(RTT::Info) << "Starting test component in position mode" << RTT::endlog();
         ramp_input = &(joint_state_in_data.angles);
@@ -97,8 +97,10 @@ void Robot_data_test::updateHook() {
         lock = false;
     }
 
+    // Do something with *ramp_output, so it does not get optimized out ¯\_(ツ)_/¯
+    RTT::log(RTT::Info) << "Values: " << *ramp_output << RTT::endlog();
+
     // Write values to output ports
-    RTT::log(RTT::Info) << "Values: " << *ramp_output << RTT::endlog(); // ATTENTION: Apparently, removing this statement will cause GCC to optimize away our out_..._data, resulting in unexpected replies by the robot.
     out_trq_port.write(out_trq_data);
     out_vel_port.write(out_vel_data);
     out_pos_port.write(out_pos_data);
