@@ -1,0 +1,46 @@
+# load typekits
+import("eigen_typekit")
+import("kdl_typekit")
+import("rst-rt_typekit")
+
+# import component libs
+import("rtt_gazebo_embedded") 
+import("rtt-gazebo-robot-sim") 
+require("os")
+
+# instantiate components
+
+# gazebo
+loadComponent("gazebo","RTTGazeboEmbedded")
+setActivity("gazebo",0,10,ORO_SCHED_OTHER)
+gazebo.argv = strings("--verbose") 
+
+# robot sim
+loadComponent("coman_gazebo","cogimon::robotSim")
+setActivity("coman_gazebo",0,11,ORO_SCHED_OTHER)
+
+# load simulation related parts (i.e. models)
+
+# actually start the gzserver
+gazebo.configure()
+# start the simulation process
+gazebo.start()
+# disable the dynamics
+gazebo.toggleDynamicsSimulation(false)
+# load model
+gazebo.spawn_model("franka-robot", "model://franka", 10)
+
+
+# configure coman sim
+# attach previously loaded model
+coman_gazebo.getModel("franka-robot")
+var string path_model_urdf = "/home/franka/cogimon-gazebo-models/franka/model.urdf"
+var string path_model_srdf = "/home/franka/cogimon-gazebo-models/franka/model_julian.srdf"
+coman_gazebo.loadURDFAndSRDF(path_model_urdf, path_model_srdf)
+
+# execute the simulation bridge (coman)
+coman_gazebo.configure()
+
+coman_gazebo.setControlMode("left_arm", "JointPositionCtrl")
+
+gazebo.toggleDynamicsSimulation(true)

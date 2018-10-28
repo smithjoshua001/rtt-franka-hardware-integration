@@ -19,7 +19,11 @@ void franka_robot::updateHook() {
 
     for (it = kinematic_chains.begin(); it != kinematic_chains.end(); it++){
         try { 
-        it->second->move(); } catch(...){ this->getActivity()->thread()->yield(); this->stop(); }
+            it->second->move();
+        } catch(...) {
+            this->getActivity()->thread()->yield();
+            this->stop();
+        }
     }
     // execution action is called to trigger this updateHook again.
     if(!this->getActivity()->isPeriodic()){

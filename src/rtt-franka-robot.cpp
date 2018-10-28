@@ -40,6 +40,7 @@ franka_robot::franka_robot(const std::string &name) :
                        RTT::ClientThread);
 
     // Default IP of this computer
+    // TODO What is this actually used for?
     this->ip_addr = "192.168.0.1";
     this->addProperty("ip_addr", ip_addr).doc("IP address of the computer");
 
@@ -134,7 +135,7 @@ bool franka_robot::getModel(const std::string &model_name) {
         return true;
     }
     //parse URDF
-    model = urdf::parseURDFFile(model_name);
+    model = std::shared_ptr<urdf::ModelInterface const>(urdf::parseURDFFile(model_name).get());
     return bool(model);
 }
 
@@ -203,7 +204,7 @@ bool franka_robot::loadURDFAndSRDF(const std::string &URDF_path,
             }
         }
         // store the parsed URDF model from xbotcoremodel.
-        model = _xbotcore_model.get_urdf_model();
+        model = std::shared_ptr<urdf::ModelInterface const>(_xbotcore_model.get_urdf_model().get());
     } else {
         RTT::log(RTT::Info) << "URDF and SRDF have been already loaded!" << RTT::endlog();
     }
