@@ -135,7 +135,11 @@ bool franka_robot::getModel(const std::string &model_name) {
         return true;
     }
     //parse URDF
+    #if URDF_MAJOR >= 1
+    model = urdf::parseURDFFile(model_name);
+    #else
     model = std::shared_ptr<urdf::ModelInterface const>(urdf::parseURDFFile(model_name).get());
+    #endif
     return bool(model);
 }
 
@@ -204,7 +208,11 @@ bool franka_robot::loadURDFAndSRDF(const std::string &URDF_path,
             }
         }
         // store the parsed URDF model from xbotcoremodel.
-        model = std::shared_ptr<urdf::ModelInterface const>(_xbotcore_model.get_urdf_model().get());
+        #if URDF_MAJOR >= 1
+        model = _xbotcore_model.get_urdf_model();
+        #else
+	model = std::shared_ptr<urdf::ModelInterface const>(_xbotcore_model.get_urdf_model().get());
+        #endif
     } else {
         RTT::log(RTT::Info) << "URDF and SRDF have been already loaded!" << RTT::endlog();
     }
@@ -254,7 +262,7 @@ bool franka_robot::addChain(std::string name, std::string robot_ip,
     //                                                                  )
     //                                                              )
     //     );
-    kinematic_chains[name] = std::make_shared<KinematicChain>(chain_name, enabled_joints_in_chain, *(this->ports()), std::make_unique<franka::Robot::Impl>(std::make_unique<Network>(robot_ip, research_interface::robot::kCommandPort),50, RealtimeConfig::kEnforce));
+    kinematic_chains[name] = std::make_shared<KinematicChain>(chain_name, enabled_joints_in_chain, *(this->ports()), std::make_unique<franka::Robot::Impl>(std::make_unique<Network>(robot_ip, research_interface::robot::kCommandPort),1, RealtimeConfig::kEnforce));
     return true;
 }
 
